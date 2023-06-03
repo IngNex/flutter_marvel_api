@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_marvel_api/api/api.dart';
 import 'package:flutter_marvel_api/domain/models/character_modal.dart';
+import 'package:skeletons/skeletons.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,7 +14,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Character>> futureCharacter;
   @override
   void initState() {
-    // TODO: implement initState
     futureCharacter =
         Api.getCharacters('https://gateway.marvel.com/v1/public/characters');
     super.initState();
@@ -28,36 +28,41 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const Expanded(
               flex: 1,
-              child: Center(
-                child: Text(
-                  'Marvel Characters',
-                  style: TextStyle(fontSize: 25),
-                  textAlign: TextAlign.center,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Marvel Characters',
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Api Marvel Characters',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                ],
               ),
             ),
             Expanded(
               flex: 5,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-                child: FutureBuilder<List<Character>>(
-                  future: futureCharacter,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      if (snapshot.data!.length == 0) {
-                        return Center(
-                          child: Text("No hay cursos disponibles"),
-                        );
-                      } else {
-                        return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            final path =
-                                snapshot.data![index].thumbnail['path'];
-                            final extension =
-                                snapshot.data![index].thumbnail['extension'];
-                            return Card(
+              child: FutureBuilder<List<Character>>(
+                future: futureCharacter,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text("No hay characters"),
+                      );
+                    } else {
+                      return ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          final path = snapshot.data![index].thumbnail['path'];
+                          final extension =
+                              snapshot.data![index].thumbnail['extension'];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 15),
+                            child: Card(
                               margin: const EdgeInsets.all(8.0),
                               elevation: 5,
                               shape: RoundedRectangleBorder(
@@ -82,8 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           const SizedBox(height: 10),
                                           snapshot.data![index].description
-                                                      .length !=
-                                                  0
+                                                  .isNotEmpty
                                               ? Text(
                                                   snapshot
                                                       .data![index].description,
@@ -98,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             decoration: BoxDecoration(
                                                 color: Colors.red,
                                                 borderRadius:
-                                                    BorderRadius.circular(15)),
+                                                    BorderRadius.circular(10)),
                                             child: const Padding(
                                               padding: EdgeInsets.all(8.0),
                                               child: Text(
@@ -120,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       child: Container(
                                         constraints: BoxConstraints.tight(
-                                            const Size(150, 150)),
+                                            const Size(150, 200)),
                                         child: Image.network(
                                           fit: BoxFit.cover,
                                           '$path.$extension',
@@ -131,16 +135,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ],
                               ),
-                            );
-                          },
-                        );
-                      }
-                    } else if (snapshot.hasError) {
-                      return Text("${snapshot.error}");
+                            ),
+                          );
+                        },
+                      );
                     }
-                    return SizedBox.shrink();
-                  },
-                ),
+                  } else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+                  return SkeletonListView(
+                    itemCount: 10,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SkeletonItem(
+                          child: Column(
+                            children: [
+                              SkeletonAvatar(
+                                style: SkeletonAvatarStyle(
+                                  width: double.infinity,
+                                  height: 150,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
