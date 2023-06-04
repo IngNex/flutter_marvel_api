@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                       child: Container(
                                         constraints: BoxConstraints.tight(
-                                            const Size(150, 200)),
+                                            const Size(120, 150)),
                                         child: Image.network(
                                           fit: BoxFit.cover,
                                           '$path.$extension',
