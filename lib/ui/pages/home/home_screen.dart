@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_marvel_api/api/api.dart';
 import 'package:flutter_marvel_api/domain/models/character_modal.dart';
+import 'package:flutter_marvel_api/ui/pages/personage/personage_screen.dart';
 import 'package:skeletons/skeletons.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     'Marvel Characters',
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 38, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     'Api Marvel Characters',
@@ -53,13 +54,86 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text("No hay characters"),
                       );
                     } else {
-                      return ListView.builder(
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(8.0),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.8,
+                        ),
+                        shrinkWrap: true,
                         itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          final path = snapshot.data![index].thumbnail['path'];
-                          final extension =
-                              snapshot.data![index].thumbnail['extension'];
-                          return Padding(
+                        itemBuilder: (_, index) {
+                          final data = snapshot.data!;
+                          final path = data[index].thumbnail['path'];
+                          final extension = data[index].thumbnail['extension'];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => PersonageScreen(
+                                    personage: data[index],
+                                    tag: index,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Card(
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Hero(
+                                tag: index,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Image.network(
+                                    fit: BoxFit.cover,
+                                    '$path.$extension',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  } else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+                  return SkeletonListView(
+                    itemCount: 10,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SkeletonItem(
+                          child: Column(
+                            children: [
+                              SkeletonAvatar(
+                                style: SkeletonAvatarStyle(
+                                  width: double.infinity,
+                                  height: 150,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/*
+Padding(
                             padding: const EdgeInsets.symmetric(
                                 vertical: 8, horizontal: 15),
                             child: Card(
@@ -136,40 +210,5 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                          );
-                        },
-                      );
-                    }
-                  } else if (snapshot.hasError) {
-                    return Text("${snapshot.error}");
-                  }
-                  return SkeletonListView(
-                    itemCount: 10,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SkeletonItem(
-                          child: Column(
-                            children: [
-                              SkeletonAvatar(
-                                style: SkeletonAvatarStyle(
-                                  width: double.infinity,
-                                  height: 150,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+                          )
+*/

@@ -23,6 +23,10 @@ class Api {
         name: character['name'],
         description: character['description'],
         thumbnail: character['thumbnail'],
+        comics: character['comics'],
+        events: character['events'],
+        series: character['series'],
+        stories: character['stories'],
       );
       characterList.add(jsonCharacter);
     }
